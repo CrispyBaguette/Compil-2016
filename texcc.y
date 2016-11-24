@@ -18,7 +18,6 @@
 
 %token TEXSCI_BEGIN TEXSCI_END BLANKLINE LEFTARR
 %token <name> ID
-%token <name> VAR
 %token <value> NUMBER 
 
 %right LEFTARR
@@ -33,25 +32,24 @@ algorithm_list:
   ;
 
 algorithm:
-    TEXSCI_BEGIN '{' ID '}' statements TEXSCI_END
+    TEXSCI_BEGIN '{' ID '}' statement_list TEXSCI_END
     {
       fprintf(stderr, "[texcc] info: algorithm \"%s\" parsed\n", $3);
       free($3);
     }
   ;
 
-statements: /*empty*/
-  | statements statement ';'
+statement_list:
+    statement_list statement
+  | statement
   ;
-
 
 statement:
-  | ID LEFTARR exp
+    '$' ID LEFTARR exp
   ;
 
-exp:
-    NUMBER
-  | ID
+exp : NUMBER '$'
+  | '$' ID '$'
   | exp '+' exp
   | exp '-' exp
   | exp '*' exp

@@ -9,32 +9,30 @@
 begin     "\\begin{texsci}"
 end       "\\end{texsci}"
 blankline "\\BlankLine"
-id        "[a-zA-Z_][a-zA-Z0-9_]*"
-var       "\$[a-zA-Z][a-zA-Z0-9]*"
-number    "[0-9]+\$"
-leftarr   "\\[a-z]+"
-keyword   "\\[A-Z][a-z]*"
-comment   "\\tcc{[A-z0-9_]}$"
+id        [a-zA-Z_][a-zA-Z0-9_]*
+number    [0-9]+
+leftarr   "\\leftarr"
+keyword   \\[A-Z][a-z]*
+comment   \\tcc{[A-z0-9_]}$
 
 %%
 
 {begin}             { BEGIN(texsci);   // Start TexSci scanning mode
+                      printf("texsci ON\n");
                       return TEXSCI_BEGIN;
                     }
-
-<texsci>{end}       { BEGIN(INITIAL); // Reset to default scanning mode
-                      return TEXSCI_END;
-        }
-<texsci>{id}        { yylval.name = strdup(yytext);
+<texsci>{id}        { yylval.name=strdup(yytext);
                       return ID;
                     }
-<texsci>{blankline} { return BLANKLINE; }
-<texsci>{var}       { yylval.name = strdup(yytext+1);
-                      return VAR; }
-<texsci>{number}    { return NUMBER; }
+<texsci>{number}    { yylval.value = atoi(yytext);
+                      return NUMBER;
+                    }
 <texsci>{leftarr}   { return LEFTARR; }
-<texsci>[{}]        { return yytext[0]; }
-<texsci>{comment}   { }
+<texsci>{end}       { BEGIN(INITIAL); // Reset to default scanning mode
+                      printf("texsci OFF\n");
+                      return TEXSCI_END;
+                    }
+<texsci>[{};$+*-/]  { return yytext[0]; }
 [\n]                { }
 .                   { }
 
