@@ -1,16 +1,16 @@
 CC = gcc
 LEX = flex
-YACC = yacc -d
+YACC = bison -d
 CFLAGS = -O2 -Wall -g
 LDFLAGS = -ly -lfl # Linux: -lfl / OSX: -ll
 EXEC = texcc
 SRC = 
 OBJ = $(SRC:.c=.o)
 
-all: $(OBJ) y.tab.c lex.yy.c
+all: $(OBJ) texcc.tab.c lex.yy.c
 	$(CC) -o $(EXEC) $^ $(LDFLAGS)
 
-y.tab.c: $(EXEC).y
+texcc.tab.c: $(EXEC).y
 	$(YACC) $(EXEC).y
 
 lex.yy.c: $(EXEC).l
