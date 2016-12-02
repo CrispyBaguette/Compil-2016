@@ -451,7 +451,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    36,    36,    37,    41,    49,    50,    54,    55,    59,
-      60,    61,    62,    63,    64,    65
+      63,    73,    74,    75,    76,    77
 };
 #endif
 
@@ -1247,16 +1247,38 @@ yyreduce:
 #line 1248 "texcc.tab.c" /* yacc.c:1646  */
     break;
 
-  case 15:
-#line 66 "texcc.y" /* yacc.c:1646  */
-    {
-    (yyval.expval).ptr = (yyvsp[-1].expval).ptr;
+  case 9:
+#line 60 "texcc.y" /* yacc.c:1646  */
+    { 
+    (yyval.expval).ptr = symtable_const(SYMTAB,(yyvsp[-1].intval));
   }
 #line 1256 "texcc.tab.c" /* yacc.c:1646  */
     break;
 
+  case 10:
+#line 64 "texcc.y" /* yacc.c:1646  */
+    { 
+    struct symbol * id = symtable_get(SYMTAB,(yyvsp[-1].strval));
+    if ( id == NULL )
+    {
+        fprintf(stderr,"Name '%s' undeclared\n",(yyvsp[-1].strval));
+        exit(1);
+    }
+    (yyval.expval).ptr = id;
+  }
+#line 1270 "texcc.tab.c" /* yacc.c:1646  */
+    break;
 
-#line 1260 "texcc.tab.c" /* yacc.c:1646  */
+  case 15:
+#line 78 "texcc.y" /* yacc.c:1646  */
+    {
+    (yyval.expval).ptr = (yyvsp[-1].expval).ptr;
+  }
+#line 1278 "texcc.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1282 "texcc.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1484,7 +1506,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 71 "texcc.y" /* yacc.c:1906  */
+#line 83 "texcc.y" /* yacc.c:1906  */
 
 
 int main(int argc, char* argv[]) {

@@ -57,7 +57,19 @@ statement
 
 exp
   : NUMBER '$'
+  { 
+    $$.ptr = symtable_const(SYMTAB,$1);
+  }
   | '$' ID '$'
+  { 
+    struct symbol * id = symtable_get(SYMTAB,$2);
+    if ( id == NULL )
+    {
+        fprintf(stderr,"Name '%s' undeclared\n",$2);
+        exit(1);
+    }
+    $$.ptr = id;
+  }
   | exp '+' exp
   | exp '-' exp
   | exp '*' exp
