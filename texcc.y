@@ -1,6 +1,7 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
+  #include "texscic.h"
   #define TEXCC_ERROR_GENERAL 4
 
   void yyerror(char*);
@@ -12,13 +13,18 @@
 %}
 
 %union {
-  char* name;
-  int value;
+    long int intval;
+    name_t strval;
+    struct {
+        struct symbol * ptr;
+    } expval;
 }
 
-%token TEXSCI_BEGIN TEXSCI_END BLANKLINE LEFTARR
-%token <name> ID
-%token <value> NUMBER 
+%token TEXSCI_BEGIN TEXSCI_END BLANKLINE LEFTARR SEMICOLON PRINT
+%token <strval> ID
+%token <intval> NUMBER
+
+%type <expval> exp
 
 %right LEFTARR
 %left '+' '-'
@@ -31,30 +37,35 @@ algorithm_list:
   | algorithm
   ;
 
-algorithm:
-    TEXSCI_BEGIN '{' ID '}' statement_list TEXSCI_END
+algorithm
+  : TEXSCI_BEGIN '{' ID '}' statement_list TEXSCI_END
     {
       fprintf(stderr, "[texcc] info: algorithm \"%s\" parsed\n", $3);
       free($3);
     }
   ;
 
-statement_list:
-    statement_list statement
+statement_list
+  : statement_list statement
   | statement
   ;
 
-statement:
-    '$' ID LEFTARR exp
+statement
+  : '$' ID LEFTARR exp SEMICOLON
+  | PRINT '$' ID SEMICOLON
   ;
 
-exp : NUMBER '$'
+exp
+  : NUMBER '$'
   | '$' ID '$'
   | exp '+' exp
   | exp '-' exp
   | exp '*' exp
   | exp '/' exp
   | '(' exp ')'
+  {
+    $$.ptr = $2.ptr;
+  }
   ;
 
 %%

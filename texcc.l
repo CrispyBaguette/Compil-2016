@@ -2,6 +2,7 @@
   #include <stdlib.h>
   #include <string.h>
   #include "y.tab.h"
+  #include "lib.h"
 %}
 
 %s texsci
@@ -10,7 +11,7 @@ begin     "\\begin{texsci}"
 end       "\\end{texsci}"
 blankline "\\BlankLine"
 id        [a-zA-Z_][a-zA-Z0-9_]*
-number    [0-9]+
+number    0|[1-9][0-9]*
 leftarr   "\\leftarr"
 keyword   \\[A-Z][a-z]*
 comment   \\tcc{[A-z0-9_]}$
@@ -21,10 +22,12 @@ comment   \\tcc{[A-z0-9_]}$
                       printf("texsci ON\n");
                       return TEXSCI_BEGIN;
                     }
-<texsci>{id}        { yylval.name=strdup(yytext);
+<texsci>{id}        { yylval.strval=strdup(yytext);
+                      printf("new id: %s\n", strdup(yytext));
                       return ID;
                     }
-<texsci>{number}    { yylval.value = atoi(yytext);
+<texsci>{number}    { yylval.intval = atoi(yytext);
+                      printf("number: %d\n", atoi(yytext));
                       return NUMBER;
                     }
 <texsci>{leftarr}   { return LEFTARR; }
@@ -32,7 +35,9 @@ comment   \\tcc{[A-z0-9_]}$
                       printf("texsci OFF\n");
                       return TEXSCI_END;
                     }
-<texsci>[{};$+*-/]  { return yytext[0]; }
+<texsci>[{}$+*-/]   { return yytext[0]; }
+<texsci>"\\;"       { return SEMICOLON; }
+<texsci>"\\print"   { return PRINT; }
 [\n]                { }
 .                   { }
 
