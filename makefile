@@ -7,7 +7,7 @@ EXEC = texcc
 SRC = 
 OBJ = $(SRC:.c=.o)
 
-all: $(OBJ) texcc.tab.c lex.yy.c
+all: $(OBJ) texcc.tab.c lex.yy.c lib.c texsci.c
 	$(CC) -o $(EXEC) $^ $(LDFLAGS)
 
 texcc.tab.c: $(EXEC).y

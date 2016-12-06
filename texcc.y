@@ -14,7 +14,7 @@
 
 %union {
     long int intval;
-    name_t strval;
+    char* strval;
     struct {
         struct symbol * ptr;
     } expval;
@@ -32,8 +32,7 @@
 
 %%
 
-algorithm_list:
-    algorithm_list algorithm
+algorithm_list: algorithm_list algorithm
   | algorithm
   ;
 
@@ -45,30 +44,29 @@ algorithm
     }
   ;
 
-statement_list
-  : statement_list statement
+statement_list: BLANKLINE
+  | statement_list statement
   | statement
   ;
 
-statement
-  : '$' ID LEFTARR exp SEMICOLON
-  | PRINT '$' ID SEMICOLON
+statement : '$' ID LEFTARR exp '$' SEMICOLON
+  | '$' PRINT ID '$' SEMICOLON
   ;
 
 exp
-  : NUMBER '$'
-  { 
-    $$.ptr = symtable_const(SYMTAB,$1);
+  : NUMBER
+  {
+    //$$.ptr = symtable_const(SYMTAB,$1);
   }
-  | '$' ID '$'
-  { 
-    struct symbol * id = symtable_get(SYMTAB,$2);
+  | ID
+  {
+    /*struct symbol * id = symtable_get(SYMTAB,$2);
     if ( id == NULL )
     {
         fprintf(stderr,"Name '%s' undeclared\n",$2);
         exit(1);
     }
-    $$.ptr = id;
+    $$.ptr = id;*/
   }
   | exp '+' exp
   | exp '-' exp

@@ -1,4 +1,5 @@
-
+#ifndef LIB_H
+#define LIB_H
 
 /* TABLE DES SYMBOLES */
 
@@ -14,7 +15,7 @@ struct symbol {
 
 struct symtable {
     unsigned int capacity;
-    unsigned int temporary; 
+    unsigned int temporary;
     unsigned int size;
     struct symbol * symbols;
 };
@@ -62,4 +63,4 @@ void code_dump(struct code * c);
 void code_free(struct code * c);
 
 
-
+#endif

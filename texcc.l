@@ -6,15 +6,14 @@
 %}
 
 %s texsci
-
 begin     "\\begin{texsci}"
 end       "\\end{texsci}"
 blankline "\\BlankLine"
-id        [a-zA-Z_][a-zA-Z0-9_]*
+id        [a-zA-Z][a-zA-Z0-9_]*
 number    0|[1-9][0-9]*
 leftarr   "\\leftarr"
-keyword   \\[A-Z][a-z]*
-comment   \\tcc{[A-z0-9_]}$
+comment   "\\tcc{"[A-z0-9_]"}\$"
+semic     "\\;" 
 
 %%
 
@@ -22,22 +21,25 @@ comment   \\tcc{[A-z0-9_]}$
                       printf("texsci ON\n");
                       return TEXSCI_BEGIN;
                     }
-<texsci>{id}        { yylval.strval=strdup(yytext);
-                      printf("new id: %s\n", strdup(yytext));
+<texsci>{id}        { //yylval.strval=strdup(yytext);
+                      //printf("new id: %s\n", strdup(yytext));
+			printf("id\n");
                       return ID;
                     }
-<texsci>{number}    { yylval.intval = atoi(yytext);
-                      printf("number: %d\n", atoi(yytext));
+<texsci>{number}    { //yylval.intval = atoi(yytext);
+                      //printf("number: %d\n", atoi(yytext));
+			printf("number\n");
                       return NUMBER;
                     }
-<texsci>{leftarr}   { return LEFTARR; }
+<texsci>{leftarr}   { 	printf("leftarrow\n");
+			return LEFTARR; }
 <texsci>{end}       { BEGIN(INITIAL); // Reset to default scanning mode
                       printf("texsci OFF\n");
                       return TEXSCI_END;
                     }
-<texsci>[{}$+*-/]   { return yytext[0]; }
-<texsci>"\\;"       { return SEMICOLON; }
+<texsci>[{}$+*-/]   { printf("operateur = %c\n", yytext[0]); return yytext[0]; }
 <texsci>"\\print"   { return PRINT; }
+<texsci>"\\;"	    { printf("semicolon\n"); return SEMICOLON; }
 [\n]                { }
 .                   { }
 
