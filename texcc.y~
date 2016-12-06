@@ -1,0 +1,98 @@
+%{
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include "texscic.h"
+  #define TEXCC_ERROR_GENERAL 4
+
+  void yyerror(char*);
+
+  // Functions and global variables provided by Lex.
+  int yylex();
+  void texcc_lexer_free();
+  extern FILE* yyin;
+%}
+
+%union {
+    long int intval;
+    char* strval;
+    struct {
+        struct symbol * ptr;
+    } expval;
+}
+
+%token TEXSCI_BEGIN TEXSCI_END BLANKLINE LEFTARR SEMICOLON PRINT
+%token <strval> ID
+%token <intval> NUMBER
+
+%type <expval> exp
+
+%right LEFTARR
+%left '+' '-'
+%left '*' '/'
+
+%%
+
+algorithm_list: algorithm_list algorithm
+  | algorithm
+  ;
+
+algorithm
+  : TEXSCI_BEGIN '{' ID '}' statement_list TEXSCI_END
+    {
+      fprintf(stderr, "[texcc] info: algorithm \"%s\" parsed\n", $3);
+      free($3);
+    }
+  ;
+
+statement_list: BLANKLINE
+  | statement_list statement
+  | statement
+  ;
+
+statement : '$' ID LEFTARR exp '$'
+  | '$' PRINT ID '$'
+  ;
+
+exp
+  : NUMBER
+  {
+    //$$.ptr = symtable_const(SYMTAB,$1);
+  }
+  | ID
+  {
+    /*struct symbol * id = symtable_get(SYMTAB,$2);
+    if ( id == NULL )
+    {
+        fprintf(stderr,"Name '%s' undeclared\n",$2);
+        exit(1);
+    }
+    $$.ptr = id;*/
+  }
+  | exp '+' exp
+  | exp '-' exp
+  | exp '*' exp
+  | exp '/' exp
+  | '(' exp ')'
+  {
+    $$.ptr = $2.ptr;
+  }
+  ;
+
+%%
+
+int main(int argc, char* argv[]) {
+  if (argc == 2) {
+    if ((yyin = fopen(argv[1], "r")) == NULL) {
+      fprintf(stderr, "[texcc] error: unable to open file %s\n", argv[1]);
+      exit(TEXCC_ERROR_GENERAL);
+    }
+  } else {
+    fprintf(stderr, "[texcc] usage: %s input_file\n", argv[0]);
+    exit(TEXCC_ERROR_GENERAL);
+  }
+
+  yyparse();
+  fclose(yyin);
+  texcc_lexer_free();
+  return EXIT_SUCCESS;
+}
